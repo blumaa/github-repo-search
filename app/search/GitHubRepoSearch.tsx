@@ -1,58 +1,52 @@
 "use client";
 
 import React, { useState } from "react";
+import RepoCard from "../components/RepoCard";
+import { useQuery } from "react-query";
 
-interface RepoData {
-  full_name: string;
-  description: string;
-  stargazers_count: number;
-  watchers_count: number;
-  forks_count: number;
-}
+const fetchGitHubRepos = async (repoName: string) => {
+  const response = await fetch(
+    `https://api.github.com/search/repositories?q=${repoName}`,
+  );
+  const data = await response.json();
+  return data;
+};
 
 const GitHubRepoSearch: React.FC = () => {
   const [repoName, setRepoName] = useState<string>("");
-  const [repoData, setRepoData] = useState<RepoData | null>(null);
 
-  const handleSearch = async () => {
-    try {
-      const response = await fetch(
-        `https://api.github.com/search/repositories?q=${repoName}`
-      );
+  const { data, isLoading, isError, isSuccess, refetch } = useQuery(
+    ["githubRepos", repoName],
+    () => fetchGitHubRepos(repoName),
+    { enabled: false },
+  );
 
-      if (response.ok) {
-        const data: RepoData = await response.json();
-        console.log('data', data)
-        setRepoData(data);
-      } else {
-        console.error("Error fetching repository data:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error fetching repository data:", error);
-    }
+  const handleSearch = () => {
+    refetch();
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error fetching data from GitHub API</div>;
+  }
 
   return (
     <div>
-      <div>
-        <input
-          type="text"
-          value={repoName}
-          onChange={(e) => setRepoName(e.target.value)}
-          placeholder="Enter repository name"
-        />
-        <button onClick={handleSearch}>Search</button>
-      </div>
-
-      {repoData ? (
-        <div>
-          <h1>Repository: {repoData.full_name}</h1>
-          <p>Description: {repoData.description}</p>
-          <p>Stars: {repoData.stargazers_count}</p>
-          <p>Watchers: {repoData.watchers_count}</p>
-          <p>Forks: {repoData.forks_count}</p>
-        </div>
-      ) : null}
+      <h1>GitHub Repositories</h1>
+      <input
+        type="text"
+        value={repoName}
+        onChange={(e) => setRepoName(e.target.value)}
+        placeholder="Enter repository name"
+      />
+      <button onClick={handleSearch}>Search</button>
+      <ul>
+        {isSuccess &&
+          data.items.map((repo: any) => <RepoCard key={repo.id} repo={repo} />)}
+      </ul>
     </div>
   );
 };
