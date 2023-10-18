@@ -5,10 +5,10 @@ export const calculateRepoScore = (
   score: number,
   stargazersCount: number,
 ): JSX.Element => {
-  // Calculate an overall score based on the given parameters
+  // Calculate an overall score based on the number of open issues, the github score, and the stargazers 
   const overallScore: number = (openIssuesCount + score + stargazersCount) / 3;
 
-  // Map the overall score to a scale from 1 to 5
+  // Map the overall score to a scale from 1 to 5 stars
   if (overallScore >= 80) {
     return (
       <>
