@@ -1,8 +1,9 @@
 "use client";
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import RepoCard from "../components/RepoCard";
 import { useQuery } from "react-query";
+import SearchBar from "./SearchBar";
+import AnimatedAirplaneLoader from "../components/AnimatedAirplaneLoader";
 
 const fetchGitHubRepos = async (repoName: string) => {
   const response = await fetch(
@@ -21,32 +22,24 @@ const GitHubRepoSearch: React.FC = () => {
     { enabled: false },
   );
 
-  const handleSearch = () => {
-    refetch();
-  };
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (isError) {
-    return <div>Error fetching data from GitHub API</div>;
-  }
-
   return (
-    <div>
-      <h1>GitHub Repositories</h1>
-      <input
-        type="text"
-        value={repoName}
-        onChange={(e) => setRepoName(e.target.value)}
-        placeholder="Enter repository name"
+    <div className="w-full flex-col justify-center items-center">
+      <h1>Which Gihub Repo are you looking for?</h1>
+      <SearchBar
+        repoName={repoName}
+        setRepoName={setRepoName}
+        handleSearch={refetch}
       />
-      <button onClick={handleSearch}>Search</button>
-      <ul>
+      <div className="w-full flex-col justify-center items-center">
+        {isLoading && (
+          <div className="flex justify-center items-center h-screen">
+            <AnimatedAirplaneLoader />
+          </div>
+        )}
+        {isError && <div>Error fetching data from Github</div>}
         {isSuccess &&
           data.items.map((repo: any) => <RepoCard key={repo.id} repo={repo} />)}
-      </ul>
+      </div>
     </div>
   );
 };
