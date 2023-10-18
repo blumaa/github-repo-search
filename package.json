@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
+    "@vercel/analytics": "^1.1.1",
     "gsap": "^3.12.2",
     "next": "13.5.5",
     "react": "^18",
